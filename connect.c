@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "gomoku.h"
 
 
 #define ROWS 6
@@ -308,7 +308,7 @@ int gameended(char **board ){
 }
 
 
-int negamax(int depth, char **board, int player,int root){
+int negamax_v0(int depth, char **board, int player,int root){
 	char **tempboard;
 	if (depth == 0 || gameended(board))
 		return player*evaluate(board);
@@ -321,7 +321,7 @@ int negamax(int depth, char **board, int player,int root){
 		int valid = place_piece_numeric(tempboard,m,player);
 		if (valid)
 		{
-			ps = -negamax(depth - 1, tempboard, -player, 0);
+			ps = -negamax_v0(depth - 1, tempboard, -player, 0);
 			score = max(score, ps);
 			if (root)
 				printf("play: %d score: %d\n", m + 1, ps);
@@ -330,6 +330,10 @@ int negamax(int depth, char **board, int player,int root){
 	}
 	return score;
 }
+
+
+
+
 
 
 
@@ -354,7 +358,7 @@ int	main(void)
 	{
 		print_board(board);
 		printf("Player %c, choose a column (1-7): \n", player);
-		negamax(2, board, nplayer ,1);
+		negamax_v0(2, board, nplayer ,1);
 		if (scanf("%d", &column) != 1)
 		{
 			printf("Invalid input. Game ended.\n");
