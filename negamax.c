@@ -14,7 +14,7 @@ int negamax(int depth, t_game_func *funcs, void *state,int root, void **out_move
 	for (int m = 0; m < n_moves; m++){
 		new_state = funcs->play_move(state, moves[m]);
 		ps = -negamax(depth - 1, funcs, new_state,0,0);
-		score = max(score, ps);
+		score = MAX(score, ps);
 		if (root && ps == score)
             (* out_move) = moves[m];
         free(new_state);

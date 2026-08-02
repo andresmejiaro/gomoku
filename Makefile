@@ -1,7 +1,7 @@
 NAME = connect
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -g3
-SRC = connect.c
+SRC = gomoku.c game.c negamax.c
 OBJ = $(SRC:.c=.o)
 
 all: $(NAME)
