@@ -1,6 +1,6 @@
-NAME = connect
+NAME = gomoku
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g3
+CFLAGS = -Wall -Wextra -Werror -g3 -o3
 SRC = gomoku.c game.c negamax.c
 OBJ = $(SRC:.c=.o)
 

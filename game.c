@@ -174,14 +174,15 @@ u_int16_t evaluate_window(const t_game_state *input, int row, int col, int row_d
 }
 
 int evaluate(const t_game_state *input){
-//Always from b pov    
+  
     u_int16_t horizontal, vertical, diag1, diag2;
-    u_int8_t b_count, w_count;
+    int b_count, w_count, sign;
 
     b_count = 0;
     w_count = 0;
-
-
+    sign = 1;
+    if (input->turn % 2)
+        sign = -1;
 
     for(int row = 0; row < 19; row++){
         for(int col = 0; col < 19; col++){
@@ -207,6 +208,7 @@ int evaluate(const t_game_state *input){
     if (w_count > 4)
         w_count = 10000000;    
 
+    
 
-    return b_count - w_count;
+    return sign * (b_count - w_count);
 }
