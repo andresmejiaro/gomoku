@@ -1,5 +1,6 @@
 #ifndef GOMOKU_H
  #define GOMOKU_H
+ #include <string.h>
  #include <strings.h>
  #include <inttypes.h>
  #include <stdio.h>
@@ -22,7 +23,6 @@
     uint8_t  turn;
     uint8_t  captures[2];
  } t_game_state;
- void print_screen(t_game_state *game);
 
  
 #endif
