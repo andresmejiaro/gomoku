@@ -123,30 +123,86 @@ char has_won(const t_game_state *input){
     return '0';
 }
 
-int next_move(const t_game_state *input, int last_move){
+
+int valid_move_checker(const t_game_state *input, int x,int y){
+        if (get_pos(input,x,y) != '0')
+            return 0;
+        int p[8];
+
+        p[0] = get_pos(input, x - 1, y - 1);
+        p[1] = get_pos(input, x + 1, y);
+        p[2] = get_pos(input, x + 1, y + 1);
+        p[3] = get_pos(input, x + 1, y - 1);
+        p[4] = get_pos(input, x, y + 1);
+        p[5] = get_pos(input, x, y - 1);
+        p[6] = get_pos(input, x - 1, y + 1);
+        p[7] = get_pos(input, x - 1, y);
+
+
+        for(int i = 0; i < 8; i++){
+            if(p[i] == 'B' || p[i] == 'W')
+                return 1;
+        }
+
+        return 0;
+}
+
+int comp_moves(void *a, void *b){
+    
+    const t_scored_move *ma = a;
+    const t_scored_move *mb = b;
+    
+    return ma->score < mb->score;
+}
+
+
+t_scored_move next_move(const t_game_state *input, int last_move){
     int x,y;
 
+    //Direct returns error
     if (last_move < -1){
         return -2;
     }
 
-    for(int i = last_move +1; i < 361; i++){
-        x = i / 19;
-        y = i % 19;
-        if (get_pos(input,x,y) == '0')
-            return i;
+    // First play go for center
+    if(get_pos(input,9,9) == '0' && last_move == -1)
+        return 9*19 +9;  //number of 9,9
+    if(get_pos(input,9,9) == '0')
+        return -1;  //number of 9,9
+
+
+    // create and evaluate all moves;
+
+    t_scored_move moves[361];
+    t_game_state game_next;
+
+
+    for(int i = 0; i < 361; i++){
+        moves[i].move = i;
+        play_move_number(input, &game_next, i);
+        moves[i].score = evaluate(&game_next);
     }
-    return -1;
+
+    qsort(moves,361,sizeof(moves[0]),comp_moves);
+    
+    
+    return moves[last_move + 1];
 }
 
-int is_terminal(const t_game_state * input){
-    if(has_won(input) != '0')
-        return 1;
-    if (next_move(input,-1) == -1)
-        return 1;
-    return 0;
-}
+int is_terminal(const t_game_state *input)
+{
+    uint64_t occupied;
 
+    if (has_won(input) != '0')
+        return 1;
+    for (int i = 0; i < 5; i++)
+        if ((input->black[i] | input->white[i]) != UINT64_MAX)
+            return 0;
+    occupied = input->black[5] | input->white[5];
+    if ((occupied & ((1ULL << 41) - 1)) != ((1ULL << 41) - 1))
+        return 0;
+    return 1;
+}
 
 u_int16_t evaluate_window(const t_game_state *input, int row, int col, int row_dir, int col_dir){
     

@@ -7,15 +7,6 @@
  #include <stdlib.h>
  #include <sys/param.h>
 
- typedef struct game_func
- {
-    int (*evaluate)(void *state);
-    int (*is_terminal)(void *state);
-    void *(*play_move)(void *state, void *move);
-    void **(*get_moves)(void *state, int *n_moves);
-    void (*free_moves)(void **moves, int *n_moves);
- } t_game_func;
- 
  typedef struct struct_game_state
  {
     uint64_t white[6];
@@ -23,6 +14,12 @@
     uint8_t  turn;
     uint8_t  captures[2];
  } t_game_state;
+
+ typedef struct scored_move
+ {
+   int move;
+   int score;
+ } t_scored_move;
  
 void print_screen(const t_game_state *game);
 void play_move(const t_game_state *input, t_game_state *output, int row, int col);
