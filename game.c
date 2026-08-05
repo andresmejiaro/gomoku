@@ -2,7 +2,7 @@
 
 
 void print_screen(const t_game_state *game){
-    
+
     char  printable[19][20];
     int sector, residue, row, col;
     
@@ -147,46 +147,68 @@ int valid_move_checker(const t_game_state *input, int x,int y){
         return 0;
 }
 
-int comp_moves(void *a, void *b){
+
+int valid_move_number(const t_game_state *input, int move_number){
+    return valid_move_checker(input, move_number / 19, move_number % 19);
+}
+
+int comp_moves(const void *a,const void *b){
     
     const t_scored_move *ma = a;
     const t_scored_move *mb = b;
     
-    return ma->score < mb->score;
+    if (ma->score < mb->score)
+        return -1;
+    if (ma->score > mb->score)
+        return 1;
+    return 0;
 }
 
 
 t_scored_move next_move(const t_game_state *input, int last_move){
-    int x,y;
+
+    t_scored_move to_return;
 
     //Direct returns error
     if (last_move < -1){
-        return -2;
+        to_return.move = -2;
+        return to_return;
     }
 
     // First play go for center
-    if(get_pos(input,9,9) == '0' && last_move == -1)
-        return 9*19 +9;  //number of 9,9
-    if(get_pos(input,9,9) == '0')
-        return -1;  //number of 9,9
+    if(get_pos(input,9,9) == '0' && last_move == -1){
+        to_return.move = 9*19 +9; //number of 9,9
+        return to_return;
+        }
+    if(get_pos(input,9,9) == '0'){
+        to_return.move = -1;
+        return to_return;
+    }
 
 
     // create and evaluate all moves;
 
     t_scored_move moves[361];
     t_game_state game_next;
+    int move_count;
 
-
+    move_count = 0;
     for(int i = 0; i < 361; i++){
-        moves[i].move = i;
-        play_move_number(input, &game_next, i);
-        moves[i].score = evaluate(&game_next);
+        if (valid_move_number(input, i)){
+            play_move_number(input, &game_next, i);
+            moves[move_count].move = i;
+            moves[move_count].score = evaluate(&game_next);
+            move_count++;
+        }
     }
 
-    qsort(moves,361,sizeof(moves[0]),comp_moves);
+    qsort(moves, move_count, sizeof(moves[0]), comp_moves);
     
-    
-    return moves[last_move + 1];
+    if (last_move + 1 < move_count)
+        return moves[last_move + 1];
+
+    to_return.move = -1;
+    return to_return;
 }
 
 int is_terminal(const t_game_state *input)
@@ -233,6 +255,7 @@ int evaluate(const t_game_state *input){
   
     u_int16_t horizontal, vertical, diag1, diag2;
     int b_count, w_count, sign;
+
 
     b_count = 0;
     w_count = 0;

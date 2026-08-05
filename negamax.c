@@ -34,29 +34,31 @@ int negapruning(int depth,
 	
 	int present_score;
 	int best_value = -10000001;
-	int n_move;
+	t_scored_move move;
 	t_game_state new_state;
     
 	
 	if (depth == 0 || is_terminal(input))
 		return evaluate(input);
 	
-		
-    n_move = next_move(input, -1);
+	
+	int counter = -1;
+    move = next_move(input, counter);
 	while (1){
-		play_move_number(input, &new_state, n_move);
+		play_move_number(input, &new_state, move.move);
 		present_score = -negapruning(depth - 1, &new_state,-beta,-alpha,0,0);
 		if (present_score > best_value){
             best_value = present_score;
             if (root)
-            	(* out_move) = n_move;
+            	(* out_move) = move.move;
             if (present_score > alpha)
                 alpha = present_score;
         }
         if (present_score >= beta)
             break;
-		n_move = next_move(input, n_move);
-		if (n_move == -1)
+		counter++;
+		move = next_move(input, counter);
+		if (move.move == -1)
 			break;
 	}	
 	return best_value;
