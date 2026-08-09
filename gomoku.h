@@ -7,19 +7,42 @@
  #include <stdlib.h>
  #include <sys/param.h>
 
- typedef struct struct_game_state
- {
-    uint64_t white[6];
-    uint64_t black[6];
-    uint8_t  turn;
-    uint8_t  captures[2];
- } t_game_state;
+  #define BOARD_CELLS 361
+  #define BOARD_SIDE 19
+  #define MAX_MACHINE_MOVES 312
 
  typedef struct scored_move
  {
    int move;
    int score;
  } t_scored_move;
+
+ typedef struct score_place
+ {
+  int score;
+  int score_dir[4];
+  int start[4];
+  int size[4];
+  int closed_init[4];
+  int closed_end[4];
+ } t_score_place;
+
+ typedef struct struct_game_state
+ {
+    int8_t   board[BOARD_CELLS];
+
+    uint16_t   turn;
+    uint8_t   captures[2];
+
+    t_score_place score_board[BOARD_CELLS];
+    int32_t   score[2];
+    
+    int8_t          available_machine_moves[BOARD_CELLS];
+    t_scored_move   machine_moves_scores[MAX_MACHINE_MOVES];
+
+
+ } t_game_state;
+
  
 void print_screen(const t_game_state *game);
 void play_move(const t_game_state *input, t_game_state *output, int row, int col);
