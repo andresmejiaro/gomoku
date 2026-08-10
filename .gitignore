@@ -1,0 +1,27 @@
+# Build outputs
+*.o
+*.a
+*.so
+*.d
+*.out
+a.out
+gomoku
+
+# Debug/runtime leftovers
+core
+core.*
+vgcore.*
+*.dSYM/
+
+# Coverage/profiling
+*.gcda
+*.gcno
+*.gcov
+gmon.out
+
+# Editor/OS noise
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store

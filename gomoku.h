@@ -60,5 +60,6 @@ int negapruning(int depth,
                 int beta,
                 int root,
                 int *out_move);
- 
+int is_move_valid(const t_game_state *input, int move);
+
 #endif
