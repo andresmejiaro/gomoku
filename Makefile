@@ -1,7 +1,9 @@
 NAME = gomoku
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -g3 -O3
-SRC = gomoku.c game.c game_render.c game_moves.c game_rules.c game_eval.c negamax.c
+SRC = gomoku.c game.c game_render.c game_moves.c \
+	game_rules.c game_eval.c negamax.c \
+	game_updates.c helpers.c game_score.c
 OBJ = $(SRC:.c=.o)
 
 all: $(NAME)

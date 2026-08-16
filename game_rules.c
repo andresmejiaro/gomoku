@@ -22,6 +22,8 @@ int is_terminal(const t_game_state *input)
 }
 
 
-bool is_move_valid(const t_game_state *input, int move){
-    
+int is_move_valid(const t_game_state *input, int move){
+    (void)input;
+    (void)move;
+    return 1;
 }

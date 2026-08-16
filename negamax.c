@@ -26,7 +26,7 @@
 
 
 int negapruning(int depth,
-                const t_game_state *input,
+                t_game_state *input,
                 int alpha,
                 int beta,
                 int root,
@@ -35,9 +35,7 @@ int negapruning(int depth,
 	int present_score;
 	int best_value = -10000001;
 	t_scored_move move;
-	t_game_state new_state;
-    
-	
+ 	
 	if (depth == 0 || is_terminal(input))
 		return evaluate(input);
 	
@@ -45,8 +43,8 @@ int negapruning(int depth,
 	int counter = -1;
     move = next_move(input, counter);
 	while (1){
-		play_move_number(input, &new_state, move.move);
-		present_score = -negapruning(depth - 1, &new_state,-beta,-alpha,0,0);
+		t_move_undo undo = play_move_number(input, move.move);
+		present_score = -negapruning(depth - 1, input,-beta,-alpha,0,0);
 		if (present_score > best_value){
             best_value = present_score;
             if (root)
@@ -57,6 +55,7 @@ int negapruning(int depth,
         if (present_score >= beta)
             break;
 		counter++;
+		undo_move(input,undo);
 		move = next_move(input, counter);
 		if (move.move == -1)
 			break;

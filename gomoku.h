@@ -10,6 +10,11 @@
   #define BOARD_CELLS 361
   #define BOARD_SIDE 19
   #define MAX_MACHINE_MOVES 312
+  #define MAX_CAPTURES 16
+  #define DIRECTION_X 0
+  #define DIRECTION_Y 1
+  #define DIRECTION_XY 2
+  #define DIRECTION_XnY 3
 
  typedef struct scored_move
  {
@@ -23,8 +28,8 @@
   int score_dir[4];
   int start[4];
   int size[4];
-  int closed_init[4];
-  int closed_end[4];
+  int open_init[4];
+  int open_end[4];
  } t_score_place;
 
  typedef struct struct_game_state
@@ -42,11 +47,29 @@
 
 
  } t_game_state;
+ 
+ typedef struct struct_move_undo
+ {
+    uint16_t  move;
+
+    uint8_t   captured_count;
+    uint16_t  captured_positions[MAX_CAPTURES];
+
+
+ } t_move_undo;
+
 
  
 void print_screen(const t_game_state *game);
-void play_move(const t_game_state *input, t_game_state *output, int row, int col);
-void play_move_number(const t_game_state *input, t_game_state *output, int move_number);
+void initialize_game_state(t_game_state *input);
+t_move_undo play_move(t_game_state *input, int row, int col);
+void undo_move(t_game_state *input, t_move_undo undo);
+void captures(t_game_state *input,int move,t_move_undo *to_return);
+void update_score_board_move_pos(t_game_state *input,int move);
+void update_available_machine_move_pos(t_game_state *input,int move);
+void update_machine_moves_scores_pos(t_game_state *input,int move);
+void update_score(t_game_state *input);
+t_move_undo play_move_number(t_game_state *input, int move_number);
 char get_pos(const t_game_state *input, int row, int col);
 int five_in_a_row(const t_game_state *input, int row, int col, int row_dir, int col_dir);
 char has_won(const t_game_state *input);
@@ -55,11 +78,17 @@ int is_terminal(const t_game_state * input);
 u_int16_t evaluate_window(const t_game_state *input, int row, int col, int row_dir, int col_dir);
 int evaluate(const t_game_state *input);
 int negapruning(int depth,
-                const t_game_state *input,
+                t_game_state *input,
                 int alpha,
                 int beta,
                 int root,
                 int *out_move);
 int is_move_valid(const t_game_state *input, int move);
+void set_pos(t_game_state *input, int row, int col, char color);
+void set_av(t_game_state *input, int row, int col, int av);
+int get_av(t_game_state *input, int row, int col);
+int coors_to_move(int row, int col);
+void move_to_coords(int move, int *row, int *col);
+
 
 #endif

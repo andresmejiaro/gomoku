@@ -25,3 +25,5 @@ gmon.out
 *.swo
 *~
 .DS_Store
+tests
+*.pdf
