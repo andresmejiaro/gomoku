@@ -34,31 +34,26 @@ int negapruning(int depth,
 	
 	int present_score;
 	int best_value = -10000001;
-	t_scored_move move;
+	t_scored_move moves[BOARD_CELLS];
  	
 	if (depth == 0 || is_terminal(input))
 		return evaluate(input);
 	
 	
-	int counter = -1;
-    move = next_move(input, counter);
-	while (1){
-		t_move_undo undo = play_move_number(input, move.move);
+	int move_count = ordered_moves(input, moves);
+	for (int i = 0; i < move_count; i++){
+		t_move_undo undo = play_move_number(input, moves[i].move);
 		present_score = -negapruning(depth - 1, input,-beta,-alpha,0,0);
 		if (present_score > best_value){
             best_value = present_score;
             if (root)
-            	(* out_move) = move.move;
+				(*out_move) = moves[i].move;
             if (present_score > alpha)
                 alpha = present_score;
         }
+		undo_move(input,undo);
         if (present_score >= beta)
             break;
-		counter++;
-		undo_move(input,undo);
-		move = next_move(input, counter);
-		if (move.move == -1)
-			break;
 	}	
 	return best_value;
 }

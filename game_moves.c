@@ -20,10 +20,8 @@ t_move_undo play_move(t_game_state *input, int row, int col){
     captures(input,totpos,&to_return);
     //update_x_pos was run inside captures for captured stones.
 
-    update_score_board_move_pos(input,totpos);
+    update_score_board_move_pos(input,totpos,0);
     update_available_machine_move_pos(input,totpos);
-    update_machine_moves_scores_pos(input,totpos);
-    update_score(input);
 
     (input->turn)++;
     return to_return;
@@ -42,14 +40,12 @@ void undo_move(t_game_state *input, t_move_undo undo){
         input->board[undo.captured_positions[i]] = -me;
 
     input->board[undo.move] = 0;
-    update_score_board_move_pos(input,undo.move);
+    update_score_board_move_pos(input,undo.move,me);
     update_available_machine_move_pos(input,undo.move);
-    update_machine_moves_scores_pos(input,undo.move);
 
     for (int i = 0; i < undo.captured_count; i++){
-        update_score_board_move_pos(input,undo.captured_positions[i]);
+        update_score_board_move_pos(input,undo.captured_positions[i],0);
         update_available_machine_move_pos(input,undo.captured_positions[i]);
-        update_machine_moves_scores_pos(input,undo.captured_positions[i]);
     }
 
     if (me == 1)
