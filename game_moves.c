@@ -92,7 +92,7 @@ void set_pos(t_game_state *input, int row, int col, char color){
         input->board[totpos] = 1;
         return;
     }
-    if (color == 'B'){
+    if (color == 'W'){
         input->board[totpos] = -1;
         return;
     }

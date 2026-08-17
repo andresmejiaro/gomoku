@@ -86,6 +86,6 @@ void set_av(t_game_state *input, int row, int col, int av);
 int get_av(t_game_state *input, int row, int col);
 int coors_to_move(int row, int col);
 void move_to_coords(int move, int *row, int *col);
-
+void set_dir(int dir, int *dx, int *dy);
 
 #endif
