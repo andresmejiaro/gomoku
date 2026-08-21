@@ -61,8 +61,8 @@ void dir_score(t_game_state *input,int move, int dir){
         
 
     (input->score_board)[move].score_dir[dir] = ((input->score_board)[move].open_init[dir]+
-        (input->score_board)[move].open_end[dir])*(end_steps+start_steps -1);    
-    
+        (input->score_board)[move].open_end[dir])*(end_steps+start_steps -1);
+
     if (end_steps+start_steps -1>=5)
          (input->score_board)[move].score_dir[dir] = 10000;
 

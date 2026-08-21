@@ -11,6 +11,8 @@ LIB_SRC = $(filter-out gomoku.c,$(SRC))
 LIB_OBJ = $(LIB_SRC:.c=.o)
 
 TEST_BIN = tests/undo_capture_test
+TEST_BIN2 = tests/recursive_undo_test
+TEST_BIN3 = tests/score_oracle_test
 
 all: $(NAME)
 
@@ -20,17 +22,25 @@ $(NAME): $(OBJ)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-test: $(TEST_BIN)
+test: $(TEST_BIN) $(TEST_BIN2) $(TEST_BIN3)
 	./$(TEST_BIN)
+	./$(TEST_BIN2)
+	./$(TEST_BIN3)
 
 $(TEST_BIN): tests/undo_capture_test.c $(LIB_OBJ)
 	$(CC) $(CFLAGS) tests/undo_capture_test.c $(LIB_OBJ) -o $(TEST_BIN)
+
+$(TEST_BIN2): tests/recursive_undo_test.c $(LIB_OBJ)
+	$(CC) $(CFLAGS) tests/recursive_undo_test.c $(LIB_OBJ) -o $(TEST_BIN2)
+
+$(TEST_BIN3): tests/score_oracle_test.c $(LIB_OBJ)
+	$(CC) $(CFLAGS) tests/score_oracle_test.c $(LIB_OBJ) -o $(TEST_BIN3)
 
 clean:
 	rm -f $(OBJ) $(DEES)
 
 fclean: clean
-	rm -f $(NAME) $(TEST_BIN)
+	rm -f $(NAME) $(TEST_BIN) $(TEST_BIN2) $(TEST_BIN3)
 
 re: fclean all
 
