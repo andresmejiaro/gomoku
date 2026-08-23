@@ -6,7 +6,6 @@
  #include <stdio.h>
  #include <stdlib.h>
  #include <sys/param.h>
- #include <sys/time.h>
 
   #define BOARD_CELLS 361
   #define BOARD_SIDE 19
@@ -44,6 +43,7 @@
     int32_t   score[2];
     
     int8_t          available_machine_moves[BOARD_CELLS];
+    t_scored_move   machine_moves_scores[MAX_MACHINE_MOVES];
 
 
  } t_game_state;
@@ -65,12 +65,15 @@ void initialize_game_state(t_game_state *input);
 t_move_undo play_move(t_game_state *input, int row, int col);
 void undo_move(t_game_state *input, t_move_undo undo);
 void captures(t_game_state *input,int move,t_move_undo *to_return);
-void update_score_board_move_pos(t_game_state *input,int move, int old_piece);
+void update_score_board_move_pos(t_game_state *input,int move);
 void update_available_machine_move_pos(t_game_state *input,int move);
+void update_machine_moves_scores_pos(t_game_state *input,int move);
+void update_score(t_game_state *input);
 t_move_undo play_move_number(t_game_state *input, int move_number);
 char get_pos(const t_game_state *input, int row, int col);
+int five_in_a_row(const t_game_state *input, int row, int col, int row_dir, int col_dir);
 char has_won(const t_game_state *input);
-int ordered_moves(const t_game_state *input, t_scored_move *moves);
+t_scored_move next_move(const t_game_state *input, int last_move);
 int is_terminal(const t_game_state * input);
 u_int16_t evaluate_window(const t_game_state *input, int row, int col, int row_dir, int col_dir);
 int evaluate(const t_game_state *input);
@@ -87,5 +90,6 @@ int get_av(t_game_state *input, int row, int col);
 int coors_to_move(int row, int col);
 void move_to_coords(int move, int *row, int *col);
 void set_dir(int dir, int *dx, int *dy);
+
 
 #endif
