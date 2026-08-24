@@ -13,6 +13,7 @@ LIB_OBJ = $(LIB_SRC:.c=.o)
 TEST_BIN = tests/undo_capture_test
 TEST_BIN2 = tests/recursive_undo_test
 TEST_BIN3 = tests/score_oracle_test
+TEST_BIN4 = tests/capture_potential_test
 
 all: $(NAME)
 
@@ -22,10 +23,11 @@ $(NAME): $(OBJ)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-test: $(TEST_BIN) $(TEST_BIN2) $(TEST_BIN3)
+test: $(TEST_BIN) $(TEST_BIN2) $(TEST_BIN3) $(TEST_BIN4)
 	./$(TEST_BIN)
 	./$(TEST_BIN2)
 	./$(TEST_BIN3)
+	./$(TEST_BIN4)
 
 $(TEST_BIN): tests/undo_capture_test.c $(LIB_OBJ)
 	$(CC) $(CFLAGS) tests/undo_capture_test.c $(LIB_OBJ) -o $(TEST_BIN)
@@ -36,11 +38,14 @@ $(TEST_BIN2): tests/recursive_undo_test.c $(LIB_OBJ)
 $(TEST_BIN3): tests/score_oracle_test.c $(LIB_OBJ)
 	$(CC) $(CFLAGS) tests/score_oracle_test.c $(LIB_OBJ) -o $(TEST_BIN3)
 
+$(TEST_BIN4): tests/capture_potential_test.c $(LIB_OBJ)
+	$(CC) $(CFLAGS) tests/capture_potential_test.c $(LIB_OBJ) -o $(TEST_BIN4)
+
 clean:
 	rm -f $(OBJ) $(DEES)
 
 fclean: clean
-	rm -f $(NAME) $(TEST_BIN) $(TEST_BIN2) $(TEST_BIN3)
+	rm -f $(NAME) $(TEST_BIN) $(TEST_BIN2) $(TEST_BIN3) $(TEST_BIN4)
 
 re: fclean all
 

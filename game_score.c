@@ -1,5 +1,27 @@
 #include "gomoku.h"
 
+
+#define CAPTURE_IMPORTANCE_EMPTY 1
+
+
+void update_all(t_game_state *input, t_update_run *update){
+    for (int i = 0; i< BOARD_CELLS; i++){
+        if ((update->board)[i] == 1){
+            update_score_board_move_pos(input,i);
+        }
+    }
+
+    for (int i = 0; i< BOARD_CELLS; i++){
+        if ((update->board)[i] == -1){
+            update_score_board_move_pos(input,i);
+        }
+    }
+
+}
+
+
+
+
 void set_dir(int dir, int *dx, int *dy){
     if (dir == DIRECTION_X){
         *dx = 1;
@@ -20,49 +42,68 @@ void set_dir(int dir, int *dx, int *dy){
 }
 
 
-int dir_score(t_game_state *input,int move, int dir){
-    int x, y;
-    int dx, dy;
-    set_dir(dir,&dx,&dy);  
-    move_to_coords(move,&x,&y);
-    char color = get_pos(input,x,y);
-    
-    if (color == '0')
-        return 0;
-    
-    
-    int start_steps = 0;
-    while (get_pos(input, x-start_steps*dx, y-start_steps*dy) == color)
-        start_steps++;
-    
-    (input->score_board)[move].start[dir] = coors_to_move(x-(start_steps-1)*dx, y-(start_steps-1)*dy);
+void set_ray(int ray, int *dx, int *dy){
+    if (ray == RAY_Xpos){
+        *dx = 1;
+        *dy = 0;
+    }
+    if (ray == RAY_Xneg){
+        *dx = -1;
+        *dy = 0;
+    }
+    if (ray == RAY_Ypos){
+        *dx = 0;
+        *dy = 1;
+    }
+    if (ray == RAY_Yneg){
+        *dx = 0;
+        *dy = -1;
+    }
+    if (ray == RAY_XYpos){
+        *dx = 1;
+        *dy = 1;
+    }
+    if (ray == RAY_XYneg){
+        *dx = -1;
+        *dy = -1;
+    }
+    if (ray == RAY_XnYpos){
+        *dx = 1;
+        *dy = -1;
+    }
+    if (ray == RAY_XnYneg){
+        *dx = -1;
+        *dy = 1;
+    }
+}
 
 
-    int end_steps = 0;
-    while (get_pos(input, x+end_steps*dx, y+end_steps*dy) == color)
-        end_steps++;
-
-    (input->score_board)[move].size[dir] = start_steps + end_steps - 1;
-
-    if (get_pos(input, x+end_steps*dx, y+end_steps*dy) == '0')
-        (input->score_board)[move].open_end[dir] = 1;
-    else 
-        (input->score_board)[move].open_end[dir] = 0;
-
-    if (get_pos(input, x-start_steps*dx, y-start_steps*dy) == '0')
-        (input->score_board)[move].open_init[dir] = 1;
-    else 
-        (input->score_board)[move].open_init[dir] = 0; 
-        
-
-    (input->score_board)[move].score_dir[dir] = ((input->score_board)[move].open_init[dir]+
-        (input->score_board)[move].open_end[dir])*(end_steps+start_steps -1);    
-    
-    if (end_steps+start_steps -1>=5)
-         (input->score_board)[move].score_dir[dir] = 10000;
-
-
-    return (input->score_board)[move].score_dir[dir];
+int ray_to_dir(int ray){
+    if (ray == RAY_Xpos){
+        return DIRECTION_X;
+    }
+    if (ray == RAY_Xneg){
+        return DIRECTION_X;
+    }
+    if (ray == RAY_Ypos){
+        return DIRECTION_Y;
+    }
+    if (ray == RAY_Yneg){
+        return DIRECTION_Y;
+    }
+    if (ray == RAY_XYpos){
+        return DIRECTION_XY;
+    }
+    if (ray == RAY_XYneg){
+        return DIRECTION_XY;
+    }
+    if (ray == RAY_XnYpos){
+        return DIRECTION_XnY;
+    }
+    if (ray == RAY_XnYneg){
+        return DIRECTION_XnY;
+    }
+    return -1;
 }
 
 
@@ -223,15 +264,126 @@ static void update_chain_score(t_game_state *input, int start, int dir,
 }
 
 
+
+
+static int check_ray_capture(t_game_state *input, int move, int ray){
+    //this is for empty cells
+    char s1, s2, s3;
+    int dx, dy,row,col;
+    
+    move_to_coords(move, &row,&col);
+    set_ray(ray,&dx,&dy);
+    s1 = get_pos(input, row + dx, col +dy);
+    s2 = get_pos(input, row + 2*dx, col + 2*dy);
+    s3 = get_pos(input, row + 3*dx, col +3*dy);
+    
+    if (!(s1 == 'B' || s1 == 'W' ))
+    return 0;
+    if (!(s2 == 'B' || s2 == 'W' ))
+    return 0;
+    if (!(s3 == 'B' || s3 == 'W' ))
+    return 0;
+    if ((s1 == s2) && (s2 != s3)){
+        if(s3 == 'B')
+        return 2;
+        return -2;    
+    }
+    return 0;
+}
+
+static int check_ray_capture2(t_game_state *input, int move, int ray){
+    //this is for occupied cells
+    char s0, s1, s2, s3;
+    int dx, dy,row,col;
+    
+    move_to_coords(move, &row,&col);
+    set_ray(ray,&dx,&dy);
+    s0 = get_pos(input, row, col);
+    s1 = get_pos(input, row + dx, col +dy);
+    s2 = get_pos(input, row + 2*dx, col + 2*dy);
+    s3 = get_pos(input, row + 3*dx, col +3*dy);
+    
+    if (s3 != '0' || s1 == '0')
+    return 0;
+    if ((s1 == s2) && (s2 != s0) && s1 != 'X'){
+        return 1;    
+    }
+    return 0;
+}
+
+
 static void update_capture_score_stone(t_game_state *input, int move){
-    (void)input;
-    (void)move;
+    
+    int temp1;
+
+    (input->score_board)[move].capture_potential_tot = 0;
+    
+    for (int ray = 0; ray < 8; ray ++){
+        temp1 = check_ray_capture2(input,move, ray);
+        (input->score_board)[move].capture_potential[ray] = temp1;
+        (input->score_board)[move].capture_potential_tot += temp1;
+
+    }
+
+
+}
+
+static int adjacent_score(const t_game_state *input, int move, int dir){
+    int pri = 0, sec = 0, mult = 1;
+    
+    for(int i = 0; i<4; i++){
+        if ((input->score_board)[move].score_dir[i] > pri){
+            sec = pri;
+            pri = (input->score_board)[move].score_dir[i];
+        }
+        else if ((input->score_board)[move].score_dir[i] > sec) 
+            sec = (input->score_board)[move].score_dir[i];
+    }
+
+    if ((input->score_board)[move].score_dir[dir] == sec && sec > 0)
+        mult = 2;
+    if ((input->score_board)[move].score_dir[dir] == pri && pri > 0)
+        mult = 3;
+
+    return mult * (input->score_board)[move].score;
+}
+
+
+static int check_ray_score(t_game_state *input, int move, int ray){
+    int dir = ray_to_dir(ray);
+    int dx, dy,row,col, n_move;
+    int to_ret;
+    
+    move_to_coords(move, &row,&col);
+    set_ray(ray,&dx,&dy);
+    
+    char W = get_pos(input,row + dx, col + dy);
+    if (!(W == 'X' || W == '0')){
+        n_move = coors_to_move(row + dx, col + dy);
+        to_ret = adjacent_score(input,n_move,dir);
+        
+        return to_ret;
+    }
+    return 0;
 }
 
 
 static void update_empty_placement(t_game_state *input, int move){
-    (void)input;
-    (void)move;
+    int temp, temp2;
+
+    (input->score_board)[move].candidate_score = 0;    
+
+    for(int ray = 0; ray < 8; ray++){
+    
+        temp2 = check_ray_capture(input,move,ray);
+        (input->score_board)[move].candidate_capture[ray] = temp2;
+        if (temp2 < 0)
+            temp2 *= -1;
+        temp = check_ray_score(input,move,ray);
+        (input->score_board)[move].candidate_dir_score[ray] = temp;
+        (input->score_board)[move].candidate_score += temp + CAPTURE_IMPORTANCE_EMPTY * temp2;
+
+    }    
 }
 
 

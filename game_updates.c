@@ -1,6 +1,22 @@
 #include "gomoku.h"
 
 
+void queue_update_stone(t_game_state *input, int move, t_update_run *update)
+{
+    (void)input;
+    (void)move;
+    (void)update;
+}
+
+
+void queue_update_free_space(t_game_state *input, int move, t_update_run *update)
+{
+    (void)input;
+    (void)move;
+    (void)update;
+}
+
+
 
 int is_machine_move(const t_game_state *input,
     int x ,int y){

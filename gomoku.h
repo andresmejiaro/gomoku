@@ -11,10 +11,22 @@
   #define BOARD_SIDE 19
   #define MAX_MACHINE_MOVES 312
   #define MAX_CAPTURES 16
+  
+  //when direction is 4
   #define DIRECTION_X 0
   #define DIRECTION_Y 1
   #define DIRECTION_XY 2
   #define DIRECTION_XnY 3
+
+  //when direction is 8
+  #define RAY_Xpos 0
+  #define RAY_Xneg 1
+  #define RAY_Ypos 2
+  #define RAY_Yneg 3
+  #define RAY_XYpos 4
+  #define RAY_XYneg 5
+  #define RAY_XnYpos 6
+  #define RAY_XnYneg 7
 
  typedef struct scored_move
  {
@@ -24,12 +36,21 @@
 
  typedef struct score_place
  {
+  //stone invariants
   int score;
   int score_dir[4];
   int start[4];
   int size[4];
   int open_init[4];
   int open_end[4];
+  int capture_potential[8];
+  int capture_potential_tot;
+
+  //canditate invariants
+  int candidate_score;
+  int candidate_capture[8];
+  int candidate_dir_score[8]; 
+
  } t_score_place;
 
  typedef struct struct_game_state
@@ -41,6 +62,7 @@
 
     t_score_place score_board[BOARD_CELLS];
     int32_t   score[2];
+    int32_t   capture_potential[2];
     
     int8_t          available_machine_moves[BOARD_CELLS];
     t_scored_move   machine_moves_scores[MAX_MACHINE_MOVES];
@@ -57,15 +79,20 @@
 
 
  } t_move_undo;
-
+ typedef struct struct_update_run
+ {
+   int8_t   board[BOARD_CELLS]; //1 update cell -1 update empty space
+ } t_update_run;
 
  
 void print_screen(const t_game_state *game);
 void initialize_game_state(t_game_state *input);
 t_move_undo play_move(t_game_state *input, int row, int col);
 void undo_move(t_game_state *input, t_move_undo undo);
-void captures(t_game_state *input,int move,t_move_undo *to_return);
+void captures(t_game_state *input,int move,t_move_undo *to_return, t_update_run *update);
 void update_score_board_move_pos(t_game_state *input,int move);
+void queue_update_stone(t_game_state *input, int move, t_update_run *update);
+void queue_update_free_space(t_game_state *input, int move, t_update_run *update);
 void update_available_machine_move_pos(t_game_state *input,int move);
 void update_machine_moves_scores_pos(t_game_state *input,int move);
 void update_score(t_game_state *input);

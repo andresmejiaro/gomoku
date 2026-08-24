@@ -12,7 +12,7 @@ int do_stones_need_removal(char s1, char s2, char s3, char s4){
 }
 
 
-void remove_stone(int move,t_game_state *input, t_move_undo *undo){
+void remove_stone(int move,t_game_state *input, t_move_undo *undo, t_update_run *update){
 
     int raw_side = (input->board)[move];   /* +1 or -1, before conversion */
     int side = raw_side;
@@ -30,14 +30,17 @@ void remove_stone(int move,t_game_state *input, t_move_undo *undo){
     undo->captured_positions[undo->captured_count] = move;
     (undo->captured_count)++;
     (input->captures)[(side + 1) % 2] ++; //If the stone was white it counts for black and so on
-    update_score_board_move_pos(input,move);
-    update_available_machine_move_pos(input,move);
+    
+    queue_update_stone(input,move,update);
+    //update_score_board_move_pos(input,move);
+    queue_update_free_space(input,move,update);
+    //update_available_machine_move_pos(input,move);
     
 }
 
 
 
-void check_dir_capture(t_game_state *input, int move, t_move_undo *undo, int dir){
+void check_dir_capture(t_game_state *input, int move, t_move_undo *undo, int dir, t_update_run *update){
     int row,col,dx,dy,sign;
     char stone_1, stone_2, stone_3, stone_4;
 
@@ -56,8 +59,8 @@ void check_dir_capture(t_game_state *input, int move, t_move_undo *undo, int dir
         stone_4 = get_pos(input,row + sign*3*dx,col + sign*3*dy);
 
         if(do_stones_need_removal(stone_1,stone_2,stone_3,stone_4)){
-            remove_stone(coors_to_move(row + sign* dx,col + sign*dy),input, undo);
-            remove_stone(coors_to_move(row + sign*2*dx,col + sign*2*dy),input, undo);
+            remove_stone(coors_to_move(row + sign* dx,col + sign*dy),input, undo, update);
+            remove_stone(coors_to_move(row + sign*2*dx,col + sign*2*dy),input, undo, update);
         }
 
 
@@ -67,9 +70,9 @@ void check_dir_capture(t_game_state *input, int move, t_move_undo *undo, int dir
 
 
 
-void captures(t_game_state *input, int move, t_move_undo *undo){
+void captures(t_game_state *input, int move, t_move_undo *undo, t_update_run *update){
    for (int i = 0; i < 4; i++){
-        check_dir_capture(input,move,undo,i);
+        check_dir_capture(input,move,undo,i, update);
    }    
  
 }
