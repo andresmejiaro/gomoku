@@ -63,11 +63,7 @@
     t_score_place score_board[BOARD_CELLS];
     int32_t   score[2];
     int32_t   capture_potential[2];
-    
-    int8_t          available_machine_moves[BOARD_CELLS];
-    t_scored_move   machine_moves_scores[MAX_MACHINE_MOVES];
-
-
+ 
  } t_game_state;
  
  typedef struct struct_move_undo
@@ -90,11 +86,11 @@ void initialize_game_state(t_game_state *input);
 t_move_undo play_move(t_game_state *input, int row, int col);
 void undo_move(t_game_state *input, t_move_undo undo);
 void captures(t_game_state *input,int move,t_move_undo *to_return, t_update_run *update);
-void update_score_board_move_pos(t_game_state *input,int move);
+void update_score_board_move_pos(t_game_state *input, int move, t_update_run *update);
 void queue_update_stone(t_game_state *input, int move, t_update_run *update);
-void queue_update_free_space(t_game_state *input, int move, t_update_run *update);
-void update_available_machine_move_pos(t_game_state *input,int move);
-void update_machine_moves_scores_pos(t_game_state *input,int move);
+void queue_update_free_space(int move, t_update_run *update);
+void queue_local_space(t_game_state *input, int move, t_update_run *update);
+void update_all(t_game_state *input, t_update_run *update);
 void update_score(t_game_state *input);
 t_move_undo play_move_number(t_game_state *input, int move_number);
 char get_pos(const t_game_state *input, int row, int col);
@@ -112,11 +108,10 @@ int negapruning(int depth,
                 int *out_move);
 int is_move_valid(const t_game_state *input, int move);
 void set_pos(t_game_state *input, int row, int col, char color);
-void set_av(t_game_state *input, int row, int col, int av);
-int get_av(t_game_state *input, int row, int col);
 int coors_to_move(int row, int col);
 void move_to_coords(int move, int *row, int *col);
 void set_dir(int dir, int *dx, int *dy);
+void set_ray(int ray, int *dx, int *dy);
 
 
 #endif

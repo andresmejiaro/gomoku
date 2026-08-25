@@ -18,6 +18,8 @@ void remove_stone(int move,t_game_state *input, t_move_undo *undo, t_update_run 
     int side = raw_side;
     (input->board)[move] = 0;
 
+    
+
     if (side == 1){
         side = 0;
     }
@@ -25,17 +27,13 @@ void remove_stone(int move,t_game_state *input, t_move_undo *undo, t_update_run 
         side = 1;
     } // If convention 1 Black -1 White and captures[0] -> Black and so forth
 
-    input->available_machine_moves[move] = 1;
+    input->score[side] -= input->score_board[move].score;
 
     undo->captured_positions[undo->captured_count] = move;
     (undo->captured_count)++;
     (input->captures)[(side + 1) % 2] ++; //If the stone was white it counts for black and so on
     
-    queue_update_stone(input,move,update);
-    //update_score_board_move_pos(input,move);
-    queue_update_free_space(input,move,update);
-    //update_available_machine_move_pos(input,move);
-    
+    queue_local_space(input, move, update);
 }
 
 
@@ -61,6 +59,7 @@ void check_dir_capture(t_game_state *input, int move, t_move_undo *undo, int dir
         if(do_stones_need_removal(stone_1,stone_2,stone_3,stone_4)){
             remove_stone(coors_to_move(row + sign* dx,col + sign*dy),input, undo, update);
             remove_stone(coors_to_move(row + sign*2*dx,col + sign*2*dy),input, undo, update);
+            queue_update_stone(input,coors_to_move(row + sign*3*dx,col + sign*3*dy),update);
         }
 
 
@@ -78,16 +77,6 @@ void captures(t_game_state *input, int move, t_move_undo *undo, t_update_run *up
 }
 
 
-int valid_plays(const t_game_state *input){
-    int cum_sum = 0;
-
-    for (int i = 0; i < BOARD_CELLS; i++){
-        cum_sum += input->available_machine_moves[i];
-    }
-
-    return cum_sum > 0;
-}
-
 
 /* Scaffold only: victory detection is not implemented yet. */
 char has_won(const t_game_state *input){
@@ -100,8 +89,8 @@ int is_terminal(const t_game_state *input)
 {
     if (has_won(input) != '0')
         return 1;
-    if (!valid_plays(input))
-        return 1;
+    // if (!valid_plays(input))
+    //     return 1;
     return 0;
 }
 

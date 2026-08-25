@@ -4,16 +4,68 @@
 #define CAPTURE_IMPORTANCE_EMPTY 1
 
 
+void check_space_around(t_game_state *input, int move, t_update_run *update){
+    int x, y, dx, dy;
+    move_to_coords(move, &x,&y);
+    
+    for(int ray = 0; ray < 8; ray ++){
+        set_ray(ray,&dx,&dy);
+        if (get_pos(input,x+dx,y+dy) == '0'){
+            queue_update_free_space(coors_to_move(x+dx,y+dy), update);
+        } 
+    }
+}
+
+
+
+
+void queue_update_stone(t_game_state *input, int move, t_update_run *update)
+{
+    (update->board)[move] = 1;
+    check_space_around(input, move, update);
+}
+
+
+void queue_update_free_space(int move, t_update_run *update)
+{
+    (update->board)[move] = -1;
+ 
+}
+
+void queue_local_space(t_game_state *input, int move, t_update_run *update){
+    int x, y, dx, dy;
+    char content;
+    move_to_coords(move, &x,&y);
+    
+    for(int ray = 0; ray < 8; ray ++){
+        set_ray(ray,&dx,&dy);
+        
+        for(int dis = 0; dis < 5; dis++){
+            if(dis == 0 && ray != 0)
+                continue;
+            content = get_pos(input,x+dis*dx,y+dis*dy);
+            if (content == 'X')
+                continue;         
+            if (content == '0'){
+                queue_update_free_space(coors_to_move(x+dis*dx,y+dis*dy), update);
+            } else {
+                queue_update_stone(input, coors_to_move(x+dis*dx,y+dis*dy), update); 
+            }
+        }
+    }
+}
+
+
 void update_all(t_game_state *input, t_update_run *update){
     for (int i = 0; i< BOARD_CELLS; i++){
         if ((update->board)[i] == 1){
-            update_score_board_move_pos(input,i);
+            update_score_board_move_pos(input,i,update);
         }
     }
 
     for (int i = 0; i< BOARD_CELLS; i++){
         if ((update->board)[i] == -1){
-            update_score_board_move_pos(input,i);
+            update_score_board_move_pos(input,i,update);
         }
     }
 
@@ -219,6 +271,31 @@ static int does_chain_have_space(t_game_state *input, int start, int dir,
 }
 
 
+static void cleanup_stone_properties(t_score_place *scorep){
+    scorep->score = 0;
+    scorep->capture_potential_tot = 0;
+    for(int i = 0; i <4; i++){
+        scorep->score_dir[i] = 0;
+        scorep->start[i] = 0;
+        scorep->size[i] = 0;
+        scorep->open_init[i] = 0;
+        scorep->open_end[i] = 0;
+        scorep->capture_potential[2*i] = 0;
+        scorep->capture_potential[2*i+1] = 0;
+        
+    }
+}
+
+
+static void cleanup_candidate_properties(t_score_place *scorep){
+    scorep->candidate_score = 0;
+    for(int i = 0; i <8; i++){
+        scorep->candidate_capture[i] = 0;
+        scorep->candidate_dir_score[i] = 0;        
+    }
+}
+
+
 static void update_stone_score(t_game_state *input, int move){
     int old_score, best, s_best,pv, dir_score;
     old_score = (input->score_board)[move].score;
@@ -240,11 +317,12 @@ static void update_stone_score(t_game_state *input, int move){
     else if (pv == -1)
         pv = 1;
     (input->score)[pv] += (input->score_board)[move].score - old_score;
+    cleanup_candidate_properties(&(input->score_board[move]));
 }
 
 
 static void update_chain_score(t_game_state *input, int start, int dir,
-    int length, int open_s, int open_e, int score){
+    int length, int open_s, int open_e, int score, t_update_run *update){
     
     int dx, dy,row,col,move;
     set_dir(dir,&dx,&dy);
@@ -259,6 +337,7 @@ static void update_chain_score(t_game_state *input, int start, int dir,
         (input->score_board)[move].start[dir] = start;
         (input->score_board)[move].size[dir] = length;
         update_stone_score(input,move);
+        check_space_around(input, move, update);
     }
     
 }
@@ -311,7 +390,6 @@ static int check_ray_capture2(t_game_state *input, int move, int ray){
     return 0;
 }
 
-
 static void update_capture_score_stone(t_game_state *input, int move){
     
     int temp1;
@@ -324,7 +402,6 @@ static void update_capture_score_stone(t_game_state *input, int move){
         (input->score_board)[move].capture_potential_tot += temp1;
 
     }
-
 
 }
 
@@ -383,11 +460,11 @@ static void update_empty_placement(t_game_state *input, int move){
         (input->score_board)[move].candidate_dir_score[ray] = temp;
         (input->score_board)[move].candidate_score += temp + CAPTURE_IMPORTANCE_EMPTY * temp2;
 
-    }    
+    } 
 }
 
 
-void update_chain(t_game_state *input,int move, int dir){
+void update_chain(t_game_state *input,int move, int dir, t_update_run *update){
     int start,length, open_s, open_e, score, space;
     start = locate_chain_start(input, move, dir);
     length = calculate_chain_length(input, start, dir);
@@ -395,17 +472,18 @@ void update_chain(t_game_state *input,int move, int dir){
     open_e = open_end(input, start, dir, length);
     space = does_chain_have_space(input, start, dir, length);
     score = chain_score(open_s,open_e,length, space);
-    update_chain_score(input,start,dir,length,open_s,open_e,score);
+    update_chain_score(input,start,dir,length,open_s,open_e,score, update);
 }
 
 
-void update_score_board_move_pos(t_game_state *input,int move){
+void update_score_board_move_pos(t_game_state *input,int move, t_update_run *update){
     if ((input->board)[move]!= 0){
         for (int i = 0; i < 4; i++){
-            update_chain(input,move,i);
+            update_chain(input,move,i, update);
         }
         update_capture_score_stone(input,move);
         return ;
     }
+    cleanup_stone_properties(&input->score_board[move]);
     update_empty_placement(input,move);
 }
