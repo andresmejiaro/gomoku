@@ -12,7 +12,7 @@ int main(){
 
     while(1){
         print_screen(&game);
-        negapruning(3, &game, alpha, beta, 1, &move);
+        negapruning(3, &game, alpha, beta, 1, &move, NULL);
         printf("move: %d\n",move);
         play_move_number(&game,move);
         if (is_terminal(&game))

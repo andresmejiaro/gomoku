@@ -82,7 +82,6 @@
 
  
 void print_screen(const t_game_state *game);
-void initialize_game_state(t_game_state *input);
 t_move_undo play_move(t_game_state *input, int row, int col);
 void undo_move(t_game_state *input, t_move_undo undo);
 void captures(t_game_state *input,int move,t_move_undo *to_return, t_update_run *update);
@@ -96,7 +95,6 @@ t_move_undo play_move_number(t_game_state *input, int move_number);
 char get_pos(const t_game_state *input, int row, int col);
 int five_in_a_row(const t_game_state *input, int row, int col, int row_dir, int col_dir);
 char has_won(const t_game_state *input);
-t_scored_move next_move(const t_game_state *input, int last_move);
 int is_terminal(const t_game_state * input);
 u_int16_t evaluate_window(const t_game_state *input, int row, int col, int row_dir, int col_dir);
 int evaluate(const t_game_state *input);
@@ -105,13 +103,19 @@ int negapruning(int depth,
                 int alpha,
                 int beta,
                 int root,
-                int *out_move);
+                int *out_move,
+                t_scored_move *previous_order);
 int is_move_valid(const t_game_state *input, int move);
-void set_pos(t_game_state *input, int row, int col, char color);
 int coors_to_move(int row, int col);
 void move_to_coords(int move, int *row, int *col);
 void set_dir(int dir, int *dx, int *dy);
 void set_ray(int ray, int *dx, int *dy);
+int comp_moves(const void *a, const void *b);
+void inherit_ordening(t_scored_move *move,
+                      const t_scored_move *previous_order,
+                      t_game_state *input);
+void create_ordening(t_scored_move *move, const t_game_state *input);
+void order_moves(t_scored_move *move);
 
 
 #endif

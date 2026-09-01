@@ -88,50 +88,15 @@ char get_pos(const t_game_state *input, int row, int col){
 }
 
 
-void set_pos(t_game_state *input, int row, int col, char color){
-    
-    int totpos;
-
-    if (row < 0 || col < 0 || row > BOARD_SIDE - 1 || col > BOARD_SIDE - 1)
-        return;
-    
-    totpos = row*BOARD_SIDE + col;
- 
-    if (color == 'B'){
-        input->board[totpos] = 1;
-        return;
-    }
-    if (color == 'W'){
-        input->board[totpos] = -1;
-        return;
-    }
-
-    return;
-}
-
-
 int comp_moves(const void *a,const void *b){
     
     const t_scored_move *ma = a;
     const t_scored_move *mb = b;
     
     if (ma->score < mb->score)
-        return -1;
-    if (ma->score > mb->score)
         return 1;
+    if (ma->score > mb->score)
+        return -1;
     return 0;
 }
 
-
-/* Scaffold only: ordered move selection is not implemented yet. */
-t_scored_move next_move(const t_game_state *input, int last_move){
-    t_scored_move move;
-
-    (void)input;
-    if (last_move < 0)
-        move.move = BOARD_CELLS / 2;
-    else
-        move.move = -1;
-    move.score = 0;
-    return move;
-}

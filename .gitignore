@@ -6,6 +6,8 @@
 *.out
 a.out
 gomoku
+connect.c
+
 
 # Debug/runtime leftovers
 core

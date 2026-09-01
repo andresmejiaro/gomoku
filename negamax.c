@@ -30,35 +30,47 @@ int negapruning(int depth,
                 int alpha,
                 int beta,
                 int root,
-                int *out_move){
+                int *out_move,
+				t_scored_move *previous_order){
 	
 	int present_score;
 	int best_value = -10000001;
-	t_scored_move move;
+	t_scored_move move[BOARD_CELLS];
  	
 	if (depth == 0 || is_terminal(input))
 		return evaluate(input);
 	
 	
-	int counter = -1;
-    move = next_move(input, counter);
-	while (1){
-		t_move_undo undo = play_move_number(input, move.move);
-		present_score = -negapruning(depth - 1, input,-beta,-alpha,0,0);
+	if (previous_order != NULL){
+		inherit_ordening(move,previous_order,input);
+	} else {
+		create_ordening(move,input);
+	}
+
+	order_moves(move);
+	
+	int counter = 0;
+    
+	while (counter < BOARD_CELLS){
+		if(!is_move_valid(input,move[counter].move)){
+			counter++;
+			continue;
+		}
+		t_move_undo undo = play_move_number(input, move[counter].move);
+		present_score = -negapruning(depth - 1, input,-beta,-alpha,0,0,move);
 		if (present_score > best_value){
             best_value = present_score;
             if (root)
-            	(* out_move) = move.move;
+            	(* out_move) = move[counter].move;
             if (present_score > alpha)
                 alpha = present_score;
         }
+		undo_move(input,undo);
         if (present_score >= beta)
             break;
-		counter++;
-		undo_move(input,undo);
-		move = next_move(input, counter);
-		if (move.move == -1)
+		if (move[counter].score == 0)
 			break;
+		counter++;
 	}	
 	return best_value;
 }

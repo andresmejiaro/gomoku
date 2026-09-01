@@ -77,7 +77,6 @@ void captures(t_game_state *input, int move, t_move_undo *undo, t_update_run *up
 }
 
 
-
 /* Scaffold only: victory detection is not implemented yet. */
 char has_won(const t_game_state *input){
     (void)input;
@@ -96,7 +95,7 @@ int is_terminal(const t_game_state *input)
 
 
 int is_move_valid(const t_game_state *input, int move){
-    (void)input;
-    (void)move;
+    if (input->board[move]!=0)
+        return 0;
     return 1;
 }
