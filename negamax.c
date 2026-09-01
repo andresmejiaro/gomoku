@@ -52,7 +52,9 @@ int negapruning(int depth,
 	int counter = 0;
     
 	while (counter < BOARD_CELLS){
-		if(!is_move_valid(input,move[counter].move)){
+			if (move[counter].score == 0)
+			break;
+			if(!is_move_valid(input,move[counter].move)){
 			counter++;
 			continue;
 		}
@@ -68,8 +70,7 @@ int negapruning(int depth,
 		undo_move(input,undo);
         if (present_score >= beta)
             break;
-		if (move[counter].score == 0)
-			break;
+	
 		counter++;
 	}	
 	return best_value;
