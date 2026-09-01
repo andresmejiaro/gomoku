@@ -51,7 +51,7 @@ int negapruning(int depth,
 	
 	int counter = 0;
     
-	while (counter < BOARD_CELLS){
+	while (counter < MAX_MOVES_CONSIDERED){
 			if (move[counter].score == 0)
 			break;
 			if(!is_move_valid(input,move[counter].move)){

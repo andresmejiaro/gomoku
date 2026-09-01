@@ -353,18 +353,17 @@ static int check_ray_capture(t_game_state *input, int move, int ray){
     move_to_coords(move, &row,&col);
     set_ray(ray,&dx,&dy);
     s1 = get_pos(input, row + dx, col +dy);
-    s2 = get_pos(input, row + 2*dx, col + 2*dy);
-    s3 = get_pos(input, row + 3*dx, col +3*dy);
-    
     if (!(s1 == 'B' || s1 == 'W' ))
-    return 0;
+        return 0;
+    s2 = get_pos(input, row + 2*dx, col + 2*dy);
     if (!(s2 == 'B' || s2 == 'W' ))
-    return 0;
+        return 0;
+    s3 = get_pos(input, row + 3*dx, col +3*dy);
     if (!(s3 == 'B' || s3 == 'W' ))
-    return 0;
+        return 0;
     if ((s1 == s2) && (s2 != s3)){
         if(s3 == 'B')
-        return 2;
+            return 2;
         return -2;    
     }
     return 0;
@@ -377,17 +376,22 @@ static int check_ray_capture2(t_game_state *input, int move, int ray){
     
     move_to_coords(move, &row,&col);
     set_ray(ray,&dx,&dy);
-    s0 = get_pos(input, row, col);
-    s1 = get_pos(input, row + dx, col +dy);
-    s2 = get_pos(input, row + 2*dx, col + 2*dy);
     s3 = get_pos(input, row + 3*dx, col +3*dy);
-    
-    if (s3 != '0' || s1 == '0')
-    return 0;
-    if ((s1 == s2) && (s2 != s0) && s1 != 'X'){
+    if (s3 != '0')
+        return 0;
+    s1 = get_pos(input, row + dx, col +dy);
+    if (s1 == '0' || s1 == 'X')
+        return 0;
+    s2 = get_pos(input, row + 2*dx, col + 2*dy);
+    if (s1 != s2)
+        return 0;    
+    if (s1 != s2)
+        return 0;
+    s0 = get_pos(input, row, col);
+    if (s2 != s0){
         return 1;    
     }
-    return 0;
+        return 0;
 }
 
 static void update_capture_score_stone(t_game_state *input, int move){

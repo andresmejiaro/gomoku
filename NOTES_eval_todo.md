@@ -57,3 +57,44 @@ a copy-paste. Whatever the formula ends up being:
   `evaluate()` just does one array read per stone — no per-call division or
   modulo. This was the whole point of preferring a table over live
   arithmetic in the hot path.
+
+## TODO roadmap
+
+### 5. Score candidate moves from the whole chain
+
+`check_ray_score()` currently scores an empty move from the adjacent stone's
+value. Change it to use the value of the chain reached in that direction,
+using the chain's start/length metadata, while retaining the direction and
+intersection multipliers. This lets a four-stone chain outweigh a three-stone
+chain when the candidate limit is small.
+
+### 6. Add Zobrist hashing and a transposition table
+
+- Hash the board, side to move, and capture counts.
+- Update the hash incrementally on play, capture, and undo.
+- Store depth, score, bound type, and best move in each table entry.
+- Reuse the stored best move for move ordering.
+
+### 7. Implement terminal conditions
+
+Implement `has_won()` / `is_terminal()` for:
+
+- five stones in a row;
+- capture victory at the agreed capture count;
+- no legal moves, if the rules require a full-board draw/terminal state.
+
+Terminal scores must dominate ordinary chain and capture evaluation scores.
+
+### 8. Add captured stones to evaluation
+
+Include the capture-count term in `evaluate()` with the correct player
+perspective. Keep the capture-victory check separate from the ordinary
+capture bonus, and verify that undo restores both capture counts and the
+evaluation exactly.
+
+### 9. Validate selective search
+
+With the candidate limit set low, add positions covering immediate wins,
+mandatory blocks, captures, and double threats. Confirm that every mandatory
+move remains inside the retained candidate set before relying on the limit
+for strength.

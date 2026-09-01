@@ -27,6 +27,7 @@
   #define RAY_XYneg 5
   #define RAY_XnYpos 6
   #define RAY_XnYneg 7
+  #define MAX_MOVES_CONSIDERED 5
 
  typedef struct scored_move
  {
