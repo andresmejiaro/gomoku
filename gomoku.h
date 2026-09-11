@@ -94,6 +94,7 @@ void update_all(t_game_state *input, t_update_run *update);
 void update_score(t_game_state *input);
 t_move_undo play_move_number(t_game_state *input, int move_number);
 char get_pos(const t_game_state *input, int row, int col);
+char get_pos_move(const t_game_state *input, int move);
 int five_in_a_row(const t_game_state *input, int row, int col, int row_dir, int col_dir);
 char has_won(const t_game_state *input);
 int is_terminal(const t_game_state * input);

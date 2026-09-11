@@ -87,6 +87,11 @@ char get_pos(const t_game_state *input, int row, int col){
     return '0';
 }
 
+char get_pos_move(const t_game_state *input, int move){
+    int x,y;
+    move_to_coords(move,&x,&y);
+    return get_pos(input,x,y);
+}
 
 int comp_moves(const void *a,const void *b){
     
