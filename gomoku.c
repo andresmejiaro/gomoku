@@ -25,7 +25,7 @@ int main(){
             start = 0;
             continue;
         }
-        negapruning(10, &game, alpha, beta, 1, &move, NULL);
+        negapruning(3, &game, alpha, beta, 1, &move, NULL);
         printf("move: %d\n",move);
         play_move_number(&game,move);
         if (is_terminal(&game))

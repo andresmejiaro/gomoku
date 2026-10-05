@@ -98,8 +98,10 @@ int is_double_three(t_game_state *input, int move, int crossing){
         return 0;
     }
     t_move_undo undo = play_move_number(input, move);
-    int to_return = is_double_three_internal(input, move, crossing);
-    
+    int to_return = 0;
+    if (undo.captured_count == 0)
+        to_return = is_double_three_internal(input, move, crossing);
+     
     undo_move (input, undo);
     return to_return;
 }

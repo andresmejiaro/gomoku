@@ -79,23 +79,35 @@ void captures(t_game_state *input, int move, t_move_undo *undo, t_update_run *up
 
 /* Scaffold only: victory detection is not implemented yet. */
 char has_won(const t_game_state *input){
-    (void)input;
+    
+    if (input->captures[0] >=10)
+        return 'B';
+    if (input->captures[1] >=10)
+        return 'W';
+
+    if (input->score[input->turn % 2] >= 50000)
+        return input->turn % 2 ? 'W' : 'B';
+    
     return '0';
 }
 
 
 int is_terminal(const t_game_state *input)
 {
-    if (has_won(input) != '0')
+    char winner = has_won(input);
+    if (winner != '0'){
         return 1;
+    }
     // if (!valid_plays(input))
     //     return 1;
     return 0;
 }
 
 
-int is_move_valid(const t_game_state *input, int move){
+int is_move_valid(t_game_state *input, int move){
     if (input->board[move]!=0)
+        return 0;
+    if (is_double_three(input,move, 0))
         return 0;
     return 1;
 }

@@ -81,7 +81,7 @@
    int8_t   board[BOARD_CELLS]; //1 update cell -1 update empty space
  } t_update_run;
 
- 
+
 void print_screen(const t_game_state *game);
 t_move_undo play_move(t_game_state *input, int row, int col);
 void undo_move(t_game_state *input, t_move_undo undo);
@@ -107,7 +107,7 @@ int negapruning(int depth,
                 int root,
                 int *out_move,
                 t_scored_move *previous_order);
-int is_move_valid(const t_game_state *input, int move);
+int is_move_valid(t_game_state *input, int move);
 int coors_to_move(int row, int col);
 void move_to_coords(int move, int *row, int *col);
 void set_dir(int dir, int *dx, int *dy);
@@ -118,6 +118,6 @@ void inherit_ordening(t_scored_move *move,
                       t_game_state *input);
 void create_ordening(t_scored_move *move, const t_game_state *input);
 void order_moves(t_scored_move *move);
-
+int is_double_three(t_game_state *input, int move, int crossing);
 
 #endif
